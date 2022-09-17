@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StartupNightmare.Model.People
+namespace StartupNightmare.Api.Helpers.Networking
 {
-    internal class Person
+    internal class Client
     {
     }
 }

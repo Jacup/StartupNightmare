@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StartupNightmare.Model.People
+namespace StartupNightmare.Api
 {
-    internal class Person
+    internal static class Startup
     {
+        public static void Configure()
+        {
+
+        }
     }
 }

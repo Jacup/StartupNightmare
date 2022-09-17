@@ -23,11 +23,5 @@ namespace StartupNightmare.Model
 
             return _instance;
         }
-
-        public void Show()
-        {
-            Console.WriteLine("List of Players:");
-            Console.WriteLine(players);
-        }
     }
 }
