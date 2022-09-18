@@ -58,6 +58,34 @@ namespace StartupNightmare.Api.Helpers.Networking
             Console.WriteLine("Running the TCP server.");
 
         }
+        public Task<decimal> LongRunningCancellableOperation(int loop, CancellationToken cancellationToken)
+        {
+            Task<decimal> task = null;
+
+            // Start a task and return it
+            task = Task.Run(() =>
+            {
+                decimal result = 0;
+
+                // Loop for a defined number of iterations
+                for (int i = 0; i < loop; i++)
+                {
+                    // Check if a cancellation is requested, if yes,
+                    // throw a TaskCanceledException.
+
+                    if (cancellationToken.IsCancellationRequested)
+                        throw new TaskCanceledException(task);
+
+                    // Do something that takes times like a Thread.Sleep in .NET Core 2.
+                    Thread.Sleep(10);
+                    result += i;
+                }
+
+                return result;
+            });
+
+            return task;
+        }
 
         internal Task<List<Socket>> GetPlayers(CancellationToken cancellationToken)
         {
@@ -75,6 +103,8 @@ namespace StartupNightmare.Api.Helpers.Networking
 
                 while (!cancellationToken.IsCancellationRequested && Running)
                 {
+
+
                     if (ClientSocketTask.IsCompleted)
                     {
                         clientSocket = ClientSocketTask.Result;
