@@ -1,6 +1,10 @@
-﻿using StartupNightmare.Model;
+﻿using StartupNightmare.Api.Helpers.Networking;
+using StartupNightmare.Model;
 using StartupNightmare.Model.People;
 using System.Configuration;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 
 namespace StartupNightmare.Controller
 {
@@ -28,26 +32,48 @@ namespace StartupNightmare.Controller
 
         public async Task InitializeGameAsync()
         {
-            game = await CreateGame();
+            game = await GameCreator();
         }
 
-        public static async Task<Game> CreateGame()
+        public static async Task<Game> GameCreator()
         {
             Game game = Game.GetInstance();
-            List<Player> players = new();
+            Server server = Server.GetInstance();
 
-            // open connection for incoming players
-            //OpenConnection();
+            List<Socket> players = new();
 
-            // wait for players
-            //while (players.Count != Convert.ToInt16(ConfigurationManager.AppSettings["MaxNumberOfPlayers"]))
-            while (players.Count != 1)
+
+            server.Run();
+
+            using (var cancellationTokenSource = new CancellationTokenSource())
             {
-                players.Add(await GetPlayer());
-            }
+                // Create a task to listen to keyboard key press
+                var keyBoardTask = Task.Run(() =>
+                {
+                    Console.WriteLine($"Press enter to cancel #{Environment.CurrentManagedThreadId}");
+                    Console.ReadKey();
 
-            // start game if all players joined or host started game
-            game.players = players;
+                    // Cancel the task
+                    cancellationTokenSource.Cancel();
+                    Console.WriteLine("Cancelling. . .");
+                });
+
+                try
+                {
+                    var lobby = server.GetPlayers(cancellationTokenSource.Token);
+
+                    players.AddRange(await lobby);
+
+                    Console.WriteLine("Result {0}", players.Count);
+                    Console.WriteLine($"Press enter to continue #{Environment.CurrentManagedThreadId}");
+                }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine($"Task was cancelled. Number of players that joined game: {players.Count}");
+                }
+
+                await keyBoardTask;
+            }
 
             return game;
         }
@@ -57,7 +83,7 @@ namespace StartupNightmare.Controller
             throw new NotImplementedException();
         }
 
-        private static async Task<Player> GetPlayer()
+        private static async Task<Player> GetPlayers()
         {
             // TODO: open socket for incoming players
             await Task.Delay(TimeSpan.FromSeconds(10));

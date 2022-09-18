@@ -10,17 +10,23 @@ namespace StartupNightmare
     {
         static void Main()
         {
-            Startup.Configure();
 
-            List<Option> options = new()
-            {
-                new Option("Start new game", () => GameController.InitializeGame()),
-                new Option("Join game"),
-                new Option("Show tutorial"),
-                new Option("Exit", () => Environment.Exit(0))
-            };
+            GameController gc = GameController.GetInstance();
 
-            Launcher.Menu(options);
+            gc.InitializeGameAsync();
+
+
+            //Startup.Configure();
+
+            //List<Option> options = new()
+            //{
+            //    new Option("Start new game", () => GameController.InitializeGame()),
+            //    new Option("Join game"),
+            //    new Option("Show tutorial"),
+            //    new Option("Exit", () => Environment.Exit(0))
+            //};
+
+            //Launcher.Menu(options);
 
             Console.ReadKey();
         }
