@@ -1,27 +1,32 @@
-﻿using StartupNightmare.Model.People;
+﻿using System.Net.Sockets;
+using StartupNightmare.Model.People;
 
 namespace StartupNightmare.Model
 {
     public class Game
     {        
-        public List<Player>? players;
+        public List<Socket> Players = new();
 
-        private static Game? _instance;
-        private static readonly object _lock = new();
+        private static Game? instance;
+        private static readonly object instanceLock = new();
 
         private Game() { }
 
+        #region Public Methods
+
         public static Game GetInstance()
         {
-            if (_instance == null)
+            if (instance != null) return instance;
+
+            lock (instanceLock)
             {
-                lock (_lock)
-                {
-                    _instance ??= new Game();
-                }
+                instance ??= new();
             }
 
-            return _instance;
+            return instance;
         }
+        
+
+        #endregion
     }
 }

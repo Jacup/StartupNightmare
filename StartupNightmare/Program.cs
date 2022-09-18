@@ -14,7 +14,7 @@ namespace StartupNightmare
             GameController gc = GameController.GetInstance();
 
             gc.InitializeGameAsync();
-
+            Console.WriteLine("Game hosted.");
 
             //Startup.Configure();
 

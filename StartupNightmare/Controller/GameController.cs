@@ -1,94 +1,68 @@
 ﻿using StartupNightmare.Api.Helpers.Networking;
 using StartupNightmare.Model;
-using StartupNightmare.Model.People;
-using System.Configuration;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading;
 
 namespace StartupNightmare.Controller
 {
     public class GameController
     {
-        public Game game { get; set; }
+        private Game? game;
 
-        private static GameController? _instance;
-        private static readonly object _lock = new();
+        private static GameController? instance;
+        private static readonly object instanceLock = new();
 
         private GameController() { }
 
         public static GameController GetInstance()
         {
-            if (_instance == null)
+            if (instance != null) return instance;
+            lock (instanceLock)
             {
-                lock (_lock)
-                {
-                    _instance ??= new GameController();
-                }
+                instance ??= new();
             }
 
-            return _instance;
+            return instance;
         }
 
-        public async Task InitializeGameAsync()
+        public async void InitializeGameAsync()
         {
-            game = await GameCreator();
+            await HostNewGame();
         }
 
-        public static async Task<Game> GameCreator()
+        public async Task HostNewGame()
         {
-            Game game = Game.GetInstance();
-            Server server = Server.GetInstance();
+            game = Game.GetInstance();
 
-            List<Socket> players = new();
+            var server = Server.GetInstance();
+            const int portNumber = 6000;
 
+            server.Start(IPAddress.Any, portNumber);
 
-            server.Run();
+            using var cancellationTokenSource = new CancellationTokenSource();
 
-            using (var cancellationTokenSource = new CancellationTokenSource())
-            {
-                // Create a task to listen to keyboard key press
-                var keyBoardTask = Task.Run(() =>
-                {
-                    Console.WriteLine($"Press enter to cancel #{Environment.CurrentManagedThreadId}");
-                    Console.ReadKey();
+            var userAction = Task.Run(() => WaitForUserAction(cancellationTokenSource));
+            await server.OpenLobby(cancellationTokenSource.Token);
 
-                    // Cancel the task
-                    cancellationTokenSource.Cancel();
-                    Console.WriteLine("Cancelling. . .");
-                });
+            await userAction;
 
-                try
-                {
-                    var lobby = server.GetPlayers(cancellationTokenSource.Token);
-
-                    players.AddRange(await lobby);
-
-                    Console.WriteLine("Result {0}", players.Count);
-                    Console.WriteLine($"Press enter to continue #{Environment.CurrentManagedThreadId}");
-                }
-                catch (TaskCanceledException)
-                {
-                    Console.WriteLine($"Task was cancelled. Number of players that joined game: {players.Count}");
-                }
-
-                await keyBoardTask;
-            }
-
-            return game;
+            game.Players.AddRange(server.GetConnectedPlayers());
         }
 
-        private static void OpenConnection()
+        private static void WaitForUserAction(CancellationTokenSource cancellationTokenSource)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Press enter to cancel #{Environment.CurrentManagedThreadId}");
+            Console.ReadKey();
+
+            // Cancel the task
+            cancellationTokenSource.Cancel();
+            Console.WriteLine("Cancelling. . .");
         }
 
-        private static async Task<Player> GetPlayers()
-        {
-            // TODO: open socket for incoming players
-            await Task.Delay(TimeSpan.FromSeconds(10));
+        #region Private Methods
 
-            return new Player("Kuba");
-        }
+
+
+        #endregion
+
     }
 }
