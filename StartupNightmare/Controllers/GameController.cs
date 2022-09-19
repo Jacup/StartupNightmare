@@ -24,7 +24,7 @@ namespace StartupNightmare.Controller
             return instance;
         }
 
-        public async void InitializeGameAsync()
+        public async void Initialize()
         {
             await HostNewGame();
         }
