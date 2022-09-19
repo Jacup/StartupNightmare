@@ -14,8 +14,22 @@
 
   <ItemGroup>
     <Folder Include="Api\Enums\" />
-    <Folder Include="Model\Networking\" />
-    <Folder Include="View\" />
+    <Folder Include="Models\Networking\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\Data.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Data.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Data.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Data.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

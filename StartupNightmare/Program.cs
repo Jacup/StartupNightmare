@@ -1,36 +1,56 @@
-﻿using ConsoleLauncher;
-using ConsoleLauncher.Layout;
-using StartupNightmare.Api;
+﻿using System.Threading.Channels;
+using ConsoleLauncher;
 using StartupNightmare.Controller;
-using StartupNightmare.Model;
+using StartupNightmare.Resources;
 
-namespace StartupNightmare
+namespace StartupNightmare;
+
+internal class Program
 {
-    internal class Program
+    private static void Main()
     {
-        static void Main()
-        {
+        InitializeDefaults();
 
-            GameController gc = GameController.GetInstance();
+        Welcome();
 
-            gc.InitializeGameAsync();
-            Console.WriteLine("Game hosted.");
+        GameController gc = GameController.GetInstance();
 
-            //Startup.Configure();
+        gc.Initialize();
 
-            //List<Option> options = new()
-            //{
-            //    new Option("Start new game", () => GameController.InitializeGame()),
-            //    new Option("Join game"),
-            //    new Option("Show tutorial"),
-            //    new Option("Exit", () => Environment.Exit(0))
-            //};
+        //Startup.Configure();
 
-            //Launcher.Menu(options);
+        //List<Option> options = new()
+        //{
+        //    new Option("Start new game", () => GameController.InitializeGame()),
+        //    new Option("Join game"),
+        //    new Option("Show tutorial"),
+        //    new Option("Exit", () => Environment.Exit(0))
+        //};
 
-            Console.ReadKey();
-        }
+        //Launcher.Menu(options);
+
+        Console.ReadKey();
+    }
+
+    private static void InitializeDefaults()
+    {
+        Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
+
+    }
+
+    private static void Welcome()
+    {
+        Console.WriteLine(Data.WelcomeMessage);
 
 
     }
+
+    private static void Home()
+    {
+
+    }
+
+
+
+
 }
